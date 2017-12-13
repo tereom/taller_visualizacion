@@ -801,11 +801,524 @@ ggplot(data = factores_inglehart, mapping = aes(x = survival_selfexpression, y =
 
 ### Gráfica de línea
 
+La base de datos Global Terrorism Database (GTD) es una base de datos abierta que incluye información de los eventos terroristas en todo el mundo desde 1970 hasta el 2015. Esta base de dato se actualiza cada año con los datos del año anterior. A diferencia de muchas otras fuentes de datos de eventos terroristas, GTD incluye datos sistemáticos sobre incidentes terroristas tanto nacionales e internacionales que han ocurrido durante este período de tiempo y ahora incluye más de 150 mil casos.
+
+
+Para mayor información puedes visitar <https://www.start.umd.edu/gtd/>.
+
+
+Comenzamos leyendo los datos de ataques terroristas por año:
+
+```{r, message=FALSE, warning=FALSE, results='hide', comment=NA}
+ataques_por_anio <- read_csv("datos/gtd_ataques_por_anio.csv")
+```
+
+Ahora supongamos que queremos hacer una gráfica del número de ataques terroristas en forma de línea de tiempo. Para lograr esto, sólo necesitamos utilizar la geometría `geom_line()`:
+
+```{r}
+ggplot(data = ataques_por_anio, aes(x=iyear, y = num_ataques)) +
+  geom_line()
+```
+
 ### Gráfica de barras
+
+Podemos utilizar gráficas de barras y asociar la característica de `fill` también a la variable de año:
+
+```{r}
+ggplot(data = ataques_por_anio, aes(x = iyear, y = num_ataques, fill = iyear)) +
+  geom_bar(stat = 'identity') +
+  ggtitle('Ataques terroristas de 1970 a 2014') +
+  xlab('Año')
+```
+
+
+#### Un breve panorama sociopolítico del mundo presentado a través de gráficas:
+
+```{r}
+polity <- read_rds("datos/polity.rds")
+ggplot(data = polity, aes(x = year)) + 
+    geom_line(aes(y = numdems, colour = "numdems"), lwd = 1) + 
+    geom_line(aes(y = numauts, colour = "numauts"), lwd = 1) +
+    xlab("Year") + 
+    ylab("Count") +
+    ggtitle("Número de democracias y autocracias, 1800-2012") +
+    scale_color_manual(name = "Regime Type",
+                       labels = c(numdems="Democracias", numauts = "Autocracias"),
+                       values=c(numdems=4,numauts=2))
+```
+
+```{r, message=FALSE, comment=NA, results=FALSE}
+library(rgdal)
+wrld <- readOGR("shps", "countries")
+wrld_df <- fortify(wrld, region="name")
+```
+
+```{r, message=F, comment=NA, results='hide'}
+autocracies <- read_rds('datos/autocracies.rds')
+autocracies_2012 <- autocracies %>% filter(year == 2012)
+autocracies_mapa_2012 <- left_join(wrld_df, autocracies_2012, by = c("id"="country"))
+```
+
+
+```{r}
+ggplot(autocracies_mapa_2012, aes(x=long, y = lat)) +
+  geom_polygon(aes(group = group, fill = as.factor(regime_r)), color = "black") +
+  coord_fixed()
+```
+
 
 ### Caja y brazos
 
+
+
 ### Mapas
+
+
+```{r, echo=F, message=FALSE, warning=FALSE, comment=NA, results='hide'}
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(sp)
+library(rgeos)
+library(maptools)
+library(rgdal)
+library(ggmap)
+library(gridExtra)
+```
+
+Gran parte de los datos que se estudian en estadística espacial consisten en
+observaciones en la Tierra por lo que es importante realizar mapas donde 
+grrafiquemos las observaciones, o realizar mapas que incorporen estimaciones de 
+un modelo. Los mapas pueden ser parte del análisis exploratorio o pueden servir 
+para evaluar el ajuste de un modelo.
+
+### Elipses, datums, proyecciones
+
+1. **Elipse:** Describe la forma de la Tierra, es una aproximación que no
+ajusta a la perfección. Existen distintos elipsoides, algunos están diseñados
+para ajustar toda la Tierra (WGS84, GRS80) y algunos ajustan únicamente por
+regiones (NAD27). Los locales son más precisos para el área para la que fueron
+diseñados pero no funcionan en otras partes del mundo.
+
+```{r}
+projInfo(type = "ellps")[1:10, ]
+```
+
+2. **Datum:** Define un punto de origen para el sistema de coordenadas de la 
+Tierra y la dirección de los ejes. El datum define el elipsoide que se usará
+pero el sentido contrario no es cierto.
+
+```{r}
+projInfo(type = "datum")
+```
+
+3. **Proyección:** Proyectar el elipsoide en un espacio de dos dimensiones. Es
+decir pasar de longitud y latitud en el elipsoide a coordenadas de un mapa, esto
+conlleva necesariamente una distorsión de la superficie. La estrategia usual es
+utilizar _superficies de desarrollo_ y después aplanar la superficie. Todas las proyecciones inducen alguna distorsión y las proyecciones de los mapas serán 
+diferentes.
+
+<center><img src="./figuras/mapa_Tierra.png" style="width: 500px;"/></center>
+
+
+
+Las distorsiones resultan en pérdidas de información que pueden ser en área, 
+forma, distancia o dirección. Por ejemplo _Mercator_ preserva dirección y es 
+útil para navegación: 
+
+```{r}
+states <- map_data("state")
+usmap <- ggplot(states, aes(x=long, y=lat, group=group)) +
+  geom_polygon(fill="white", colour="black")
+usmap + coord_map("mercator")
+```
+
+Por su parte _Azimuthal Equal Area_ preserva area pero no dirección:
+
+```{r}
+usmap + coord_map("azequalarea")
+```
+<center><img src="./figuras/aea.png" style="width: 500px;"/></center>
+
+En particular en investigación es común usar _Universal Transverse Mercator 
+(UTM)_ porque preserva ángulos y dirección pero distorsiona distancia. Para
+minimizar la distorsión se divide la Tierra en 60 regiones y utiliza una 
+proyección (de secantes) en cada una.
+
+<center><img src="./figuras/utm.png" style="width: 500px;"/></center>
+
+En R podemos ver la lista de proyecciones con la siguiente instrucción:
+
+```{r}
+# 135 proyecciones distintas
+projInfo(type="proj")[1:20, ]
+```
+
+Es posible trabajar con datos no proyectados (longitud/latitud) pero se 
+requieren métodos para medir distancias: gran círculo, naive euclideana, 
+o cordal.
+
+### Sistemas de referencia de coordenadas (CRS)
+
+Los CRS nos dan una manera estándar de describir ubicaciones en la Tierra. Si 
+combinamos información de distintos CRS debemos transformarlos para poder 
+alinear la información.
+
+En R, la notación que se utiliza para describir un CRS es proj4string de la 
+libraría [PROJ.4](https://trac.osgeo.org/proj/) y se ven como:
+
++init=epsg:4121 +proj=longlat +ellps=GRS80 +datum=GGRS87 +no_defs +towgs84=-199.87,74.79,246.62
+
+#### Shapefiles
+
+Un _shapefile_ es un grupo de archivos que contienen geometrías e información de 
+acuerdo a un estándar especificado por el Insituto de Investigación en Sistemas 
+de Ecosistemas (ESRI). Nosotros tenemos los siguientes grupos de archivos 
+(para países): 
+
+* countries.shp: es el archivo principal y contiene la geometría correspondiente.
+
+* countries.dbf: es la base de datos y almacena la información de los atributos de 
+los objetos 
+
+* countries.shx: almacena el índice de geometrías de los países.
+
+* countries.prj (opcional): información del sistema de referencia de coordenadas.
+
+Los shapefiles suelen tener asociada una proyección.
+
+```{r}
+ogrInfo(dsn = "./shps", layer = "municipio")
+ogrInfo(dsn = "./shps", layer = "entidad")
+```
+
+En el caso de la proyección en los shapes de Municipios se usó
+[North America Lambert Conformal Conic Projection](http://en.wikipedia.org/wiki/Lambert_conformal_conic_projection).
+
+```{r}
+mun_shp <- readOGR("shps" , "municipio")
+mun_shp@proj4string
+```
+
+Veamos las librerías que usaremos
+
+```{r, message=FALSE, eval = FALSE}
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(sp)
+library(rgeos)
+library(maptools)
+library(rgdal)
+library(ggmap)
+library(gridExtra)
+```
+
+Usamos la función readOGR para leer los archivos de estados.
+
+```{r, message=FALSE, warning=FALSE, comment=NA, results='hide'}
+edo_shp <- readOGR("shps" , "entidad")
+```
+
+el "shps" indica que los archivos están en el directorio shps.
+
+Notemos que el objeto edo_shp no es un data frame,
+
+```{r}
+class(edo_shp)
+```
+
+Lo podemos graficar directamente con plot.
+
+```{r}
+plot(edo_shp)
+```
+
+pero para poder graficarlo con ggplot debemos convertirlo en data frame.
+
+Formamos el data frame (con fortify) que convierte los polígonos en 
+puntos, les asigna el id (NOM\_ENT) correspondiente, y asigna también un 
+_grupo_ que indica  a que polígono corresponde cada punto.
+
+```{r}
+edo_df <- fortify(edo_shp, region = "CVE_ENT")
+class(edo_df)
+head(edo_df)
+```
+Ya estamos listos para graficar, usaremos la geometría polígono utilizando la proyección de Mercator:
+
+```{r, eval = FALSE}
+ggplot(data = edo_df, aes(long, lat, group=group)) + 
+  geom_polygon(colour='darkgrey', fill='white') +
+  coord_map(projection="mercator") +
+  theme_nothing()
+```
+
+```{r, echo = FALSE, eval = FALSE}
+g <- ggplot(data = edo_df, aes(long, lat, group=group)) +
+  geom_polygon(colour='darkgrey', fill='white') +
+  coord_map(projection="mercator") +
+  theme_nothing()
+ggsave(filename = "mexico_mercator.png", plot = g, width = 10, height = 6)
+```
+
+<center>![](mexico_mercator.png)</center>
+
+Las proyecciones azimutales están centradas en el Polo Norte. Los paralelos son círculos concéntricos. Los meridianos son líneas radiales igualmente espaciadas.
+
+Utilizando la proyección azimutal de áreas iguales:
+
+```{r, eval=FALSE}
+ggplot(data = edo_df, aes(long, lat, group=group)) +
+  geom_polygon(colour='darkgrey', fill='white') +
+  coord_map(projection="azequalarea") +
+  theme_nothing()
+```
+
+```{r, echo=FALSE, eval = FALSE}
+g <- ggplot(data = edo_df, aes(long, lat, group=group)) + 
+  geom_polygon(colour='darkgrey', fill='white') +
+  coord_map(projection="azequalarea") +
+  theme_nothing()
+ggsave(filename = "mexico_azimutal.png", plot = g, width = 10, height = 6)
+```
+
+<center>![](mexico_azimutal.png)</center>
+
+
+#### Añadir variables al mapa
+
+Nuestro objetivo final es hacer mapas para representar una variable. Veamos
+cómo haríamos para representar el índice de carencias.
+
+```{r}
+indice <- read_csv("datos/indice_carencias_conapo_2010.csv")
+```
+
+**Filtramos** los datos para las entidades del centro del país:
+
+```{r}
+centro <- indice %>% 
+  filter(NOM_ABR %in% c("DF", "Mex.", "Mor."))
+```
+
+Cargamos los datos de los polígonos a nivel municipio y convertimos a data frame utilizando `CVEGEO` como identificador de la región:
+
+```{r}
+mun_shp <- readOGR("shps", "municipio")
+mun_df <- fortify(mun_shp, region = "CVEGEO")
+```
+
+
+Para incluirlas en el mapa añadimos las variables de interés a la base de datos
+mun_df. Para este ejemplo graficaremos únicamente una región. Podemos crear
+el subconjunto directamente del objeto _SpatialPolygonsDataFrame_ pero en 
+este ejemplo filtraremos la base de datos _data.frame_.
+
+```{r}
+mun_ind <- mun_df %>%
+  mutate(CVE = id) %>%
+  left_join(indice, by = "CVE") %>% 
+  filter(NOM_ABR %in% c("DF", "Mex.", "Mor."))
+
+ggplot() + 
+  geom_polygon(data = mun_ind, aes(long, lat, group = group, fill = indice)) +
+  labs(title = "Índice de carencias", fill = "Índice") +
+  coord_fixed()
+```
+
+En el siguiente mapa los colores son a nivel municipio pero dibujamos las 
+fronteras a nivel estado para evitar que los bordes opaquen los datos.
+
+```{r}
+mun_ind <- mun_df %>%
+  mutate(CVE = id) %>%
+  left_join(indice, by = "CVE") 
+
+ggplot() + 
+  geom_polygon(data = mun_ind, aes(long, lat, group = group, fill = indice)) +
+  geom_polygon(data = edo_df, aes(x = long, y = lat, group = group),
+    fill = NA, color = "darkgray", size = 0.25) +
+  labs(title = "Índice de carencias", fill = "Índice") +
+  theme_nothing(legend = TRUE) + #fondo blanco
+  guides(fill = guide_legend(reverse = TRUE)) +
+  scale_fill_distiller(palette = "GnBu", breaks = pretty_breaks(n = 10)) + #paleta 
+  coord_map()
+```
+
+
+### 6000 años de urbanización global desde 3700 aC hasta 2000 dC
+
+En junio del 2016 se publicó un artículo en la revista Nature. Lo más interesante es que se trata del primer esfuerzo que se ha hecho en proporcionar datos completos del crecimiento de las ciudades del mundo desde el 3700 aC. Los autores (Meredith Reba, Femke Reitsma y Karen Seto) escriben en su artículo:
+
+<p class="espacio">
+</p>
+
+<div style="text-align: center;">*¿Cómo se distribuyeron las ciudades a nivel mundial en el pasado? ¿Cuántas personas vivían en estas ciudades? Para entender la urbanización de hoy en día, debemos entender las tendencias históricas a largo plazo. Sin embargo, hasta la fecha no existe un registro exhaustivo de datos poblacionales espacialmente explícitos, históricos y urbanos a escala mundial. Aquí, desarrollamos el primer conjunto de datos de asentamientos urbanos entre 3700 aC y 2000 dC, mediante la digitalización, transcripción y geocodificación de datos históricos de poblaciones urbanas, datos arqueológicos y censales previamente publicadas por Chandler y Modelski.*</div>
+
+<p class="espacio">
+</p>
+
+Para mayor información puedes visitar <http://www.nature.com/articles/sdata201634>.
+
+
+Podemos utilizar estos datos para hacer una gráfica del crecimiento de las ciudades en cada siglo desde 3700 aC hasta el 2000 dC. En los datos cada unidad observacional consituye una ciudad en un año específico y las variables son el nombre de la ciudad, el país, su latitud y longitud, el año y la población.
+
+Primero leemos los datos:
+
+```{r, warning=FALSE}
+library(tidyverse)
+cities <- read_csv('datos/historical_population.csv')
+```
+
+Estos datos tienen un total de 1739 ciudades distintas. Es necesario cargar un mapa del mundo para representar la población de las ciudades sobre el mapa. Para esto se utilizan **shapefiles**.
+
+Veamos cómo se cargan los datos para los mapas:
+
+```{r, message=FALSE, comment=NA, results=FALSE}
+library(rgdal)
+wrld <- readOGR("shps", "countries")
+```
+
+el "shps" indica que los archivos están en el directorio `shps`.
+
+Notemos que el objeto wrld no es un data frame,
+
+```{r}
+class(wrld)
+```
+
+Lo podemos graficar directamente con plot.
+
+```{r}
+plot(wrld)
+```
+
+Para poder graficarlo con **ggplot** debemos convertirlo en data frame.
+
+Formamos el data frame (con fortify) que convierte los polígonos en 
+puntos, les asigna el id (name) correspondiente al nombre de cada país, y asigna también un 
+_grupo_ que indica a qué polígono corresponde cada punto.
+
+```{r}
+wrld_df <- fortify(wrld, region="name")
+class(wrld_df)
+head(wrld_df)
+```
+
+```{r, warning=FALSE}
+library(ggthemes)
+base<- ggplot() + geom_map(data=wrld_df, map=wrld_df, aes(x=long, y=lat, map_id=id, group=group),fill="gray67") + theme_map()
+```
+Mostramos el mapa base:
+
+```{r}
+print(base)
+```
+
+Ahora es necesario trazar las ciudades en una capa superior al mapa con los círculos escalados por el tamaño de la ciudad.
+
+Vamos a **filtrar** las ciudades correspondientes al año 2000 utilizando la función **filter()**:
+
+```{r}
+cities_2000 <- cities %>%
+  filter(Year == 2000)
+```
+
+El data frame resultante consta de 1695 ciudades únicas y un total de 1825 observaciones:
+
+```{r}
+glimpse(cities_2000)
+```
+
+
+<br>
+
+#### Pipeline
+
+
+La idea de *pipeline* intenta hacer el desarrollo de código más fácil, en menor tiempo, fácil de leerlo, y por lo tanto, más fácil mantenerlo.
+
+En el análisis de datos es común hacer varias operaciones y se vuelve difícil leer y entender el código. La dificultad radica en que usualmente los parámetros se asignan después del nombre de la función usando `()`. 
+
+La forma en que esta idea logra hacer las cosas más faciles es con el operador **forwad pipe** `%>%`que envía un valor a una expresión o función. Este cambio en el orden funciona como el parámetro que precede a la función es enviado ("piped") a la función. Es decir, supongamos `x` es una valor y  sea `f` una función, entonces **`x %>% f` es igual a `f(x)`.**
+
+
+Por ejemplo, sea f(x) la función de probabilidad de la distribución normal con media $\mu = 0$ y desviación estándar $\sigma = 1$:
+\[
+f(x) = \frac{ 1 }{\sqrt{2\pi}} e^{- \frac{1}{2} x^2}
+\]
+
+```{r magrttrpipe}
+f <- function(x){
+  exp(-(x^2)/2)/sqrt(2*pi)
+} 
+# Con operador pipe
+0 %>% f
+```
+
+que de forma tradicional se realiza:
+```{r magrttr}
+# Forma tradicional
+f(0)
+```
+
+En resumen `%>%` funciona:
+
+<img src="figuras/pipe-function.png" width="400px"/>
+
+**Nota:** El shortcut del pipe `%>%` es command/ctrl + shift + m
+
+
+
+> `Ejercicio`:
+>
+>
+> ¿Qué hace el siguiente código? ¿Qué hace `.`?
+
+```{r, eval = F}
+df <- data_frame(
+  x = runif(5),
+  y = rnorm(5)
+)
+df %>% .$x
+df %>% 
+  ggplot(data = ., aes(x = x, y = y)) + 
+    geom_point()
+```
+
+
+<br>
+
+
+
+Regresando a la construcción de nuestro mapa de la población en el mundo, establecemos primero los puntos de corte y las etiquetas para el tamaño de los círculos:
+
+```{r}
+size_breaks<-c(10000,50000,100000,500000,1000000,5000000,10000000)
+labs_breaks <- c("10K","50k","100K","500k","1M","5M","10M+")
+```
+
+Tanto `size_breaks` como `labs_breaks` son vectores que se van a utilizar para definir la escala (tamaño) de los círculos de acuerdo a la densidad poblacional de cada ciudad.
+
+
+Ahora graficamos agregando una capa de puntos a la gráfica base que teníamos anteriormente:
+
+```{r}
+base +
+  geom_point(data=cities_2000, aes(x=Longitude, y=Latitude, size=Pop), 
+             colour="darkmagenta",alpha=0.3, pch=20) +
+    scale_size(breaks=size_breaks,range=c(2,14), 
+               limits=c(min(cities_2000$Pop),max(cities_2000$Pop)),
+               labels=c("10K","50k","100K","500k","1M","5M","10M+")) +
+    coord_map("mollweide", ylim=c(-55,80),xlim=c(-180,180))
+```
+
+Se puede producir una gráfica para cada siglo y crear un gif con las gráficas resultantes:
+
+![](figuras/world_population.gif)
+
+
 
 ### Pequeños múltiplos
 
@@ -951,8 +1464,75 @@ p2 <- ggplot(data = temps, mapping = aes(x = long, y = temp)) +
 grid.arrange(p1, p2, widths = c(10), heights = c(6,1.5), ncol = 1)
 ```
 
-<p class="espacio">
-</p>
+### El Siglo XVIII
+Éste es un ejemplo más complejo que muestra cómo producir un mapa de los flujos de transporte del siglo XVIII. Los datos se obtuvieron del proyecto CLIWOC y representan una muestra de registros de barcos. Estamos usando una muestra muy pequeña. El ejemplo se ha elegido para demostrar una gama de capacidades dentro de ggplot2 y las formas en que pueden aplicarse para producir mapas de alta calidad con sólo unas pocas líneas de código.
+
+Para mayor información puedes visitar <http://pendientedemigracion.ucm.es/info/cliwoc/>. El análisis original se encuentra en Brunsdon (2015).
+
+Si nos fijamos en las primeras líneas de bdata vemos que hay 7 variables por cada observación que representa un solo punto en el curso de los barcos. También se incluyen el año del viaje y la nacionalidad del barco. Las 3 últimas columnas son identificadores que se utilizan más adelante para agrupar los puntos de coordenadas en las rutas.
+
+Primero leemos los datos:
+
+```{r, message=F, results='hide', comment=NA}
+library(tidyverse)
+library(rgdal)
+library(png)
+
+wrld <- readOGR("shps", "countries")
+btitle <- readPNG("figuras/brit_titles.png")
+compass <- readPNG("figuras/windrose.png")
+bdata <- read.csv("datos/british_shipping_example.csv")
+```
+
+Se sugiere ejecutar estas líneas en un script de R en RStudio y ver los datos haciendo click en el nombre de la base de datos `bdata` en la ventana de Environment.
+
+
+Primero visualizamos el mapa:
+```{r}
+wrld.f <- fortify(wrld, region="sov_a3")
+ggplot(wrld.f, aes(x = long, y = lat)) +
+  geom_polygon(aes(group=group),size = 0.1,colour="black",fill="wheat",data=wrld.f,alpha=1)
+```
+
+El código cortado a continuación crea la capa de parcela que contiene las rutas de envío. La función `geom_path()` se utiliza para poner en otra capa las coordenadas en las rutas. Dentro de la función de mapeo `aes()` que hemos especificado long y lat, pero es necesario agrupar por las variables `trp` y `group.regroup` para identificar las rutas únicas.
+
+```{r}
+ggplot(wrld.f, aes(x = long, y = lat)) +
+  geom_polygon(aes(group=group),size = 0.1,colour="black",fill="wheat",data=wrld.f,alpha=1)+
+  geom_path(aes(group = paste(bdata$trp, bdata$group.regroup, sep = ".")), 
+            color="darkblue", size = 0.2, data= bdata, alpha = 0.5, lineend = "round")
+```
+
+
+Con las siguientes capas lo que se busca es **literalmente adornar** el mapa, poniendo de fondo el color azul mar (lightblue). Por otro lado, la función `annotation_raster()` traza sobre el mapa los adornos de las imágenes cargadas anteriormente. Esto requiere que se especifique el cuadro delimitador de cada imagen. En este caso usamos la latitud y la longitud (en WGS84) y podemos usar estos parámetros para cambiar la posición de la imagen y también su tamaño. La última función `coord_equal()` fijan la relación de aspecto de la gráfica entre las coordenadas de longitud y latitud para que el mapa se vea correctamente.
+
+
+```{r}
+ggplot(wrld.f, aes(x = long, y = lat)) +
+  geom_polygon(aes(group=group),size = 0.1,colour="black",fill="wheat",data=wrld.f,alpha=1)+
+  geom_path(aes(group = paste(bdata$trp, bdata$group.regroup, sep = ".")), 
+            color="darkblue", size = 0.2, data= bdata, alpha = 0.5, lineend = "round") +
+  theme(panel.background = element_rect(fill='lightblue',colour='black')) + 
+  annotation_raster(btitle, xmin = 30, xmax = 140, ymin = 51, ymax = 87) + 
+  annotation_raster(compass, xmin = 65, xmax = 105, ymin = 25, ymax = 65) + 
+  coord_equal()
+```
+
+Se puede quitar los ejes $x$ y $y$ de la gráfca para obtener un resultado como el que se muestra a continuación:
+
+```{r}
+xquiet <- scale_x_continuous("", breaks=NULL)
+yquiet <- scale_y_continuous("", breaks=NULL)
+quiet <- list(xquiet, yquiet)
+base <- ggplot(wrld.f, aes(x = long, y = lat))
+wrld <- c(geom_polygon(aes(group=group), size = 0.1, colour= "black", fill="wheat", data=wrld.f, alpha=1))
+route <- c(geom_path(aes(long,lat,group = paste(bdata$trp, bdata$group.regroup, sep = ".")), colour="#0F3B5F", size = 0.2, data= bdata, alpha = 0.5, lineend = "round"))
+base + route + wrld + theme(panel.background = element_rect(fill='#BAC4B9',colour='black')) +
+  annotation_raster(btitle, xmin = 30, xmax = 140, ymin = 51, ymax = 87) +
+  annotation_raster(compass, xmin = 65, xmax = 105, ymin = 25, ymax = 65) +
+  coord_equal() +
+  quiet
+```
 
 <p class="espacio">
 </p>
@@ -960,10 +1540,14 @@ grid.arrange(p1, p2, widths = c(10), heights = c(6,1.5), ncol = 1)
 <p class="espacio">
 </p>
 
+<p class="espacio">
+</p>
 
 
 
 
+> Las notas de este taller introductorio están basadas en el material de Teresa Ortiz,
+> así como en el libro “R for Data Science” escrito por Hadley Wickham y Garret Grolemund.
 
 
 
@@ -1013,6 +1597,7 @@ Addison-Wesley, 1977.
 [20] Izenman y Sommer, Philatelic mixtures and multimodal densities, Journal of the
 American Statistical Association, 1998.
 
+[21] Wickham, H., & Grolemund, G. (2016). R for data science.
 
 
 
