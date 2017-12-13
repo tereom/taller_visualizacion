@@ -7,7 +7,7 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = T, message = F, comment = NA, fig.align = "center")
 ```
 
 
@@ -1059,10 +1059,10 @@ g <- ggplot(data = edo_df, aes(long, lat, group=group)) +
   geom_polygon(colour='darkgrey', fill='white') +
   coord_map(projection="mercator") +
   theme_nothing()
-ggsave(filename = "mexico_mercator.png", plot = g, width = 10, height = 6)
+ggsave(filename = "figuras/mexico_mercator.png", plot = g, width = 10, height = 6)
 ```
 
-<center>![](mexico_mercator.png)</center>
+<center>![](figuras/mexico_mercator.png)</center>
 
 Las proyecciones azimutales están centradas en el Polo Norte. Los paralelos son círculos concéntricos. Los meridianos son líneas radiales igualmente espaciadas.
 
@@ -1080,10 +1080,10 @@ g <- ggplot(data = edo_df, aes(long, lat, group=group)) +
   geom_polygon(colour='darkgrey', fill='white') +
   coord_map(projection="azequalarea") +
   theme_nothing()
-ggsave(filename = "mexico_azimutal.png", plot = g, width = 10, height = 6)
+ggsave(filename = "figuras/mexico_azimutal.png", plot = g, width = 10, height = 6)
 ```
 
-<center>![](mexico_azimutal.png)</center>
+<center>![](figuras/mexico_azimutal.png)</center>
 
 
 #### Añadir variables al mapa
@@ -1206,7 +1206,7 @@ class(wrld_df)
 head(wrld_df)
 ```
 
-```{r, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 library(ggthemes)
 base<- ggplot() + geom_map(data=wrld_df, map=wrld_df, aes(x=long, y=lat, map_id=id, group=group),fill="gray67") + theme_map()
 ```
@@ -1599,7 +1599,7 @@ American Statistical Association, 1998.
 
 [21] Wickham, H., & Grolemund, G. (2016). R for data science.
 
-
+[22] Brunsdon, C., & Singleton, A. (Eds.). (2015). Geocomputation: A Practical Primer. SAGE.
 
 
 
