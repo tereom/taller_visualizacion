@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
   }
 </style>
 
-# `#DataViz` con ggplot2 😁❤️🤪
+# `#DataViz` con ggplot2 😁❤️
 
 > "The simple graph has brought more information to the data analyst’s mind 
 > than any other device." --- John Tukey
