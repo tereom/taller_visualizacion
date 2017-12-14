@@ -34,3 +34,5 @@ vignettes/*.pdf
 *.utf8.md
 *.knit.md
 .Rproj.user
+
+rm ne_50m_admin_0_countries.zip
