@@ -321,10 +321,10 @@ ggplot(temp, aes(x=Year, y=`J-D`)) +
 
 Consideremos la siguiente gráfica sobre esperanza de vida en el 2007:
 
-![](figuras/ch-02-chartjunk-life-expectancy.png)
-
+<center><img src="figuras/ch-02-chartjunk-life-expectancy.png" width="400px" /></center>
 <p class="espacio">
 </p>
+
 
 Podemos analizar otras dos formas de visualizar estos datos de la esperanza de vida por continente. Una diferencia entre ambas gráficas es la escala: la gráfica de barras comienza en cero y la longitud de cada barra representa el valor de la variable "esperanza de vida promedio en 2007" para cada continente. Por otro lado, el panel de la derecha es un diagrama de puntos de Cleveland. Cada observación está representada por un punto, y la escala está restringida al rango de los datos como se muesgtra.
 
@@ -398,11 +398,94 @@ Entre la percepción visual y la interpretación de una gráfica están implíci
 <p class="espacio">
 </p>
 
-Para cada tipo de gráfico, se les pidió a los sujetos que identificaran el segmento más pequeño de los dos marcados en el gráfico, y luego que "hicieran un juicio visual rápido", estimando qué porcentaje el más pequeño era del más grande. Como se puede ver en la figura, los gráficos probaron los datos codificados de diferentes maneras. Los tipos 1-3 usan codificación de posición a lo largo de una escala común, mientras que los tipos 4 y 5 usan codificación de longitud. El gráfico circular codifica los valores como ángulos, y los gráficos restantes como áreas-circular, rectángulos separados (como en un cartograma) o sub-rectángulos (como en un mapa de árbol).
+Para cada tipo de gráfica, se pidió a los sujetos que identificaran el segmento o la parte más pequeña de las dos marcadas en la gráfica, y luego que "hicieran un juicio visual rápido", estimando qué porcentaje era el más pequeño del más grande. Los tipos 1-3 usan una codificación de posición a lo largo de una escala común, mientras que los tipos 4 y 5 usan una codificación de longitud. La gráfica de pie codifica los valores como ángulos, la gráfica de burbujas y las rectangulares las codifican como áreas circulares o áreas rectangulares. 
+
+Los resultados de Cleveland y McGill fueron replicados por Heer y Bostock en 2010 y los resultados se muestran a continuación:
+
+<center><img src="figuras/ch-02-heer-bostock-results.png" width="600px" /></center>
+<p class="espacio">
+</p>
+
+
+El patrón general es claro, la percepción correcta de una gráfica empeora conforma nos alejamos de hacer comparaciones en una escala común a hacer comparaciones basadas en longitudes, hasta ángulos y finalmente áreas. Las comparaciones de áreas tienen resultados particularmente malos, incluso peores que los de la difamada (merecidamente) gráfica de pie.
 
 
 <p class="espacio">
 </p>
+
+<div style="text-align: center;">**Dejemos los pie's para el postre**</div>
+<center><img src="figuras/pie_dessert.png" width="200px" /></center>
+<p class="espacio">
+</p>
+
+Para ilustrar la dificultad al interpretar las gráficas de pie, consideremos la siguiente gráfica de pie con seis rebanadas. Observemos que en este caso es fácil determinar que la porción de la Compañía C (parte verde) es del 25%, exactamente una cuarta parte del pastel.
+
+<p class="espacio">
+</p>
+
+<center><img src="figuras/pastel_1.png" width="450px" /></center>
+<p class="espacio">
+</p>
+
+
+Notemos ahora que si rotamos el pie, hasta la rebanada verde del 25% ya no es tan fácil de reconocer como tal.
+
+<p class="espacio">
+</p>
+
+<center><img src="figuras/pastel_2.png" width="450px" /></center>
+<p class="espacio">
+</p>
+
+Podemos argumentar que el problema se resuelve poniendo etiquetas en cada rebanada para indicar el porcentaje que representa.
+
+<p class="espacio">
+</p>
+
+<center><img src="figuras/pastel_3.png" width="500px" /></center>
+<p class="espacio">
+</p>
+
+Pero para el caso sería mejor agregar a las etiquetas el nombre correspondiente a cada rebanada para evitar tener que mover los ojos entre el pie y la leyenda de la gráfica.
+
+<p class="espacio">
+</p>
+
+<center><img src="figuras/pastel_4.png" width="550px" /></center>
+<p class="espacio">
+</p>
+
+Esto resulta en un absurdo, ya que la gráfica no está aportando ninguna ventaja con respecto a ver los porcentajes en una tabla o en una gráfica de barras.
+
+<p class="espacio">
+</p>
+
+<center><img src="figuras/pastel_5.png" width="600px" /></center>
+<p class="espacio">
+</p>
+
+Si decimos que el círculo pequeño tiene área de _una_ unidad y nos preguntamos cuál es el área del círculo grande, ¡vamos a sudar la gota gorda! Generalmente el valor que las personas le asignan al área del círculo grande está en el rango de 4 a 60, cuando en realidad el área es de 16.
+
+
+<center><img src="figuras/circleAreas.png" width="600px" /></center>
+<p class="espacio">
+</p>
+
+
+En la siguiente imagen podemos analizar la relación entre la correcta percepción de una gráfica y las distintas formas de codificar las cantidades que se están representando.
+
+<center><img src="figuras/apparentmagnitudegraph.png" width="600px" /></center>
+<p class="espacio">
+</p>
+
+Un aspecto importante que debemos hacer notar es que nuestros ojos mienten. 
+
+![](figuras/ebbinghaus.gif)
+
+<p class="espacio">
+</p>
+
+Y si queremos utilizar el área para codificar nuestros datos, entonces debemos asegurarnos de hacerlo correctamente y no utilizar el ancho o la altura para representar áreas de objetos que ultimadamente no tendrán ningún sentido.
 
 <div style="text-align: center;">**¡Hasta la Casa Blanca lo tuvo mal!**</div>
 <center><img src="figuras/areas/obamaCircles.jpg" width="600px" /></center>
@@ -422,7 +505,6 @@ La trifecta de una gráfica (definida por Fung en 2015) es un marco general para
 <center><img src="figuras/trifecta.png" width="200px" /></center>
 <p class="espacio">
 </p>
-
 
 Una gráfica siempre debe tener una pregunta (Q), que aparece en la parte superior de la trifecta porque cualquier visualización debe tener un _objetivo_. Debe estar bien planteada y ser interesante. Un buen planteamiento se dirige a la búsqueda de los datos apropiados para hacer la gráfica. Una pregunta interesante asegura una audiencia comprometida.
 
@@ -699,8 +781,6 @@ Para asignar una característica a una variable, asociamos el nombre del mapeo a
 
 También podríamos agregar etiquetas:
 
-
-
 ```{r, echo=FALSE, results='hide', comment=NA, message=FALSE, warning=FALSE}
 library(maptools)
 etiquetar <- function(df, x, y, etiq = "etiq", size = 3.5){
@@ -877,12 +957,87 @@ ggplot(autocracies_mapa_2012, aes(x=long, y = lat)) +
 
 ### Diagrama de caja y brazos
 
+Vamos a utilizar un nuevo conjunto de datos sobre vuelos que salen de Nueva York en 2013. Este conjunto de datos contiene todos los 336,776 vuelos que salieron de Nueva York en 2013. Los datos provienen de los EE.UU. [Bureau of Transportation Statistics] (http://www.transtats.bts.gov/DatabaseInfo.asp?DB_ID=120&Link=0), y están documentados en ?flights.
+
+
+```{r, message=FALSE, warning=FALSE}
+library(nycflights13)
+glimpse(flights)
+```
+
+
+Supongamos que deseamos analizar el retraso en las llegadas por aereolínea. Supongamos, además, que nos interesa el retraso promedio.
+
+```{r}
+flights_2 <- flights %>%
+  group_by(carrier) %>%
+  summarise(arr_delay_media = mean(arr_delay, na.rm = T))
+ggplot(flights_2, aes(x = carrier, y = arr_delay_media)) +
+  geom_bar(stat = 'identity')
+```
+
+Si agregamos las barras de error que suelen ser utilizadas en gráficas de barras que representan medias, en realidad no logramos mucho.
+
+```{r}
+flights_3 <- flights %>%
+  group_by(carrier) %>%
+  summarise(arr_delay_media = mean(arr_delay, na.rm = T),
+            se = sd(arr_delay, na.rm = T))
+ggplot(flights_3, aes(x = carrier, y = arr_delay_media)) +
+  geom_bar(stat = 'identity') + 
+  geom_errorbar(aes(ymin = arr_delay_media - se, ymax = arr_delay_media + se),
+                width = .3)
+```
+
+Observamos que hay mucha varianza. Una alternativa útil para entender el fenómeno es utilizar el diagrama de caja y brazos.
+
+```{r, message=FALSE, warning=FALSE}
+ggplot(flights, aes(x = carrier, y = arr_delay)) + 
+  geom_boxplot() 
+```
+
+Tal vez sea adecuado utilizar una transformación, aunque esto siempre debe hacerse con cautela.
+
+```{r, message=FALSE, warning=FALSE}
+ggplot(flights, aes(x = carrier, y = arr_delay + abs(min(flights$arr_delay, na.rm = T)))) + 
+  geom_boxplot() +
+  scale_y_log10(name = "Arrival delay (min) in log scale: log(x+c)")
+```
+
+Por último, generalmente es apropiado ordenar los diagramas de caja y brazos por la mediana si la variable que se está representando en el eje $x$ no es de tipo ordinal.
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+ggplot(iris, aes(x = Species, y = Sepal.Width)) + geom_boxplot()
+```
+
+```{r}
+ggplot(iris, aes(x = reorder(Species, Sepal.Width, FUN = median), y = Sepal.Width)) + geom_boxplot()
+```
+
 
 ### Pequeños múltiplos
 
+Supongamos que nos interesa analizar el tiempo de retraso en la salida de los vuelos a lo largo de la hora del día en que salen para algunas aerolíneas más conocidas:
 
+```{r, message=FALSE, warning=FALSE}
+flights_4 <- flights %>% filter(carrier %in% c("AA","B6","DL","UA","VX","WN"))
+ggplot(flights_4, aes(x = hour, y = dep_delay, color = carrier, group = carrier)) +
+  geom_smooth()
+```
 
+Existe una opción diferente, denominada *pequeños múltiplos* por Tufte. En ggplot basta con usar la función `facet_grid(.~)` como una capa adicional:
 
+```{r, message=FALSE, warning=FALSE}
+ggplot(flights_4, aes(x = hour, y = dep_delay)) +
+  geom_smooth() +
+  facet_grid(. ~ carrier)
+```
+
+De acuerdo con Tufte (Envisioning Information, página 67):
+
+> En el corazón del razonamiento cuantitativo hay una sola pregunta: _¿Comparado con qué?_
+> Los pequeños múltiplos, multivariados y abundantes en datos, responden la pregunta directamente porque visualmente refuerzan las comparaciones de cambios, las diferencias entre objetos, y el alcance de las alternativas. Para una amplia gama de visualizción de datos, los pequeños múltiplos son generalmente la mejor solución de diseño.
 
 ### Mapas
 
@@ -1550,8 +1705,7 @@ base + route + wrld + theme(panel.background = element_rect(fill='#BAC4B9',colou
 
 
 
-> Las notas de este taller introductorio están basadas en el material de Teresa Ortiz,
-> así como en el libro “R for Data Science” escrito por Hadley Wickham.
+> Las notas de este taller introductorio están basadas en el material de Teresa Ortiz Mancera, el libro “R for Data Science” escrito por Hadley Wickham y el libro "Data Visualization for Social Science" de Kieran Healy.
 
 
 
@@ -1560,7 +1714,7 @@ base + route + wrld + theme(panel.background = element_rect(fill='#BAC4B9',colou
 
 [1] Newman, G. E., & Scholl, B. J. (2012). Bar graphs depicting averages are perceptually misinterpreted: The within-the-bar bias. Psychonomic bulletin & review, 19(4), 601-607.
 
-[2] Tufte, E. R. (2006). Beautiful evidence. New York.
+[2] Tufte, E. R. (2006). Beautiful Evidence. New York.
 
 [3] Healy, K., & Moody, J. (2014). Data visualization in sociology. Annual review of sociology, 40, 105-128.
 
@@ -1608,3 +1762,7 @@ American Statistical Association.
 [23] Cleveland, William S., and Robert McGill. (1984). “Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods.” Journal of the American Statistical Association 79: 531–34.
 
 [24] Cleveland, William S., and Robert McGill. (1987). “Graphical Perception: The Visual Decoding of Quantitative Information on Graphical Displays of Data.” Journal of the Royal Statistical Society Series A 150: 192–229.
+
+[25] Heer, Jeffrey, and Michael Bostock. (2010). “Crowdsourcing Graphical Perception: Using Mechanical Turk to Assess Visualization Design.” In Proceedings of the Sigchi Conference on Human Factors in Computing Systems, CHI ’10, New York, NY, USA: ACM, 203–12. http://doi.acm.org/10.1145/1753326.1753357.
+
+[26] Tufte, E. R. (1990). Envisioning information. Graphics press.
