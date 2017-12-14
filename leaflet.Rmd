@@ -1,0 +1,66 @@
+---
+title: "R Notebook"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+
+```{r}
+library(leaflet)
+library(tidyverse)
+library(rgdal)
+
+# Read data
+url.d <- 'https://ourworldindata.org/wp-content/uploads/datamaps/AgeOfDemocracies2007/AgeOfDemocracies2007.csv'
+df.democracies <- read_csv(url.d, col_types = 'ci') 
+summary(df.democracies)
+
+```
+
+```{r}
+# Read map
+classes = 5
+colors = "Blues"
+
+url <- "http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/50m/cultural/ne_50m_admin_0_countries.zip"
+tmp <- tempdir()
+file <- basename(url)
+download.file(url, file)
+unzip(file, exdir = tmp)
+
+countries <- readOGR(dsn = tmp, 
+                     layer = "ne_50m_admin_0_countries", 
+                     encoding = "UTF-8",
+                     verbose = FALSE)
+
+leafmap <- merge(countries, 
+                 df.democracies, 
+                 by.x = "ISO_A3", 
+                 by.y = "ISO",                    
+                 sort = FALSE)
+leafmap <- leafmap[!is.na(leafmap@data$Democduration) ,]
+
+popup_dat <- paste0("<strong>County: </strong>", 
+                    leafmap$NAME, 
+                    "<br><strong>Value: </strong>", 
+                    leafmap$Democduration)
+
+pal <- colorBin(
+  palette = "BuPu",
+  domain = leafmap$Democduration, 9, pretty=FALSE)
+
+leaflet(data = leafmap) %>%
+  addProviderTiles("MapBox", options = providerTileOptions(
+    id = "mapbox.light",
+    accessToken = Sys.getenv('MAPBOX_ACCESS_TOKEN'))) %>% 
+  setView(0, 0, zoom = 2) %>%
+  addPolygons(fillColor = ~pal(leafmap[['Democduration']]), 
+              fillOpacity = 0.8, 
+              smoothFactor = 0.1, 
+              color = "white",
+              weight = 0.5,
+              popup = popup_dat)
+```
+
+

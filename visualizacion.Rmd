@@ -1278,12 +1278,14 @@ Nuestro objetivo final es hacer mapas para representar una variable. Veamos
 cómo haríamos para representar el índice de carencias.
 
 ```{r}
+library(readr)
 indice <- read_csv("datos/indice_carencias_conapo_2010.csv")
 ```
 
 **Filtramos** los datos para las entidades del centro del país:
 
 ```{r}
+library(dplyr)
 centro <- indice %>% 
   filter(NOM_ABR %in% c("DF", "Mex.", "Mor."))
 ```
@@ -1316,11 +1318,13 @@ ggplot() +
 En el siguiente mapa los colores son a nivel municipio pero dibujamos las 
 fronteras a nivel estado para evitar que los bordes opaquen los datos.
 
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, eval=FALSE}
 mun_ind <- mun_df %>%
   mutate(CVE = id) %>%
   left_join(indice, by = "CVE") 
 
+library(ggmap)
+library(scales)
 ggplot() + 
   geom_polygon(data = mun_ind, aes(long, lat, group = group, fill = indice)) +
   geom_polygon(data = edo_df, aes(x = long, y = lat, group = group),
@@ -1331,7 +1335,7 @@ ggplot() +
   scale_fill_distiller(palette = "GnBu", breaks = pretty_breaks(n = 10)) + #paleta 
   coord_map()
 ```
-
+<center>![](figuras/carencias_municipal.png)</center>
 
 ### 6000 años de urbanización global desde 3700 aC hasta 2000 dC
 
