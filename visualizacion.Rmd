@@ -2,6 +2,7 @@
 title: ""
 output:
   html_document:
+    keep_md: true
     css: estilos/modest.css
     theme: spacelab
 ---
@@ -1482,6 +1483,9 @@ Se puede producir una gráfica para cada siglo y crear un gif con las gráficas 
 ![](figuras/world_population.gif)
 
 ### Otros ejemplos
+
+
+#### Ejemplo con leaflet
 ```{r}
 library(leaflet)
 library(maps)
