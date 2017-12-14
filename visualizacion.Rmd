@@ -218,20 +218,19 @@ Si analizamos la gráfica acumulada, es posible ver que la pendiente está aumen
 Cuando se ignoran las prácticas estándar se puede llegar a construir visualizaciones de datos engañosas. Estamos acostumbrados, por ejemplo, a que las gráficas de pie representan partes de un todo, o que los tiempos avanzan de izquierda a derecha. Entonces, cuando esas reglas son violadas, nos es difícil ver lo que está sucediendo realmente. 
 
 Aquí hay un ejemplo de una gráfica de pie que presentó Fox durante las primarias presidenciales del 2012:
-
-![](figuras/areas/misleading3_pie.png)
-
+<center><img src="figuras/areas/misleading3_pie.png" width="400px" /></center>
 <p class="espacio">
 </p>
+
 
 Las tres partes del pie no suman 100%. La encuesta presumiblemente permitió respuestas múltiples, en cuyo caso una gráfica de barras hubiera sido más apropiada. En cambio, esta gráfica de pie nos da  la impresión de que cada uno de los tres candidatos tuvo aproximadamente un tercio del apoyo, lo cual no es cierto.
 
 Otro ejemplo es esta visualización publicada por Business Insider, que parece mostrar lo contrario de lo que realmente está sucediendo:
 
-![](figuras/areas/misleading3_deaths.jpg)
-
+<center><img src="figuras/areas/misleading3_deaths.jpg" width="400px" /></center>
 <p class="espacio">
 </p>
+
 
 A primera vista, parece que las muertes por arma de fuego están disminuyendo en Florida. Pero analizando la gráfica más a fondo podemos ver que el eje vertical (el eje $y$) está al revés, con cero en la parte superior y el valor máximo en la parte inferior. A medida que aumentan las muertes por armas de fuego, la línea se inclina hacia abajo, violando una convención bien establecida de que los valores y aumentan a medida que avanzamos hacia arriba de la gráfica.
 
@@ -391,8 +390,22 @@ Cleveland y otros investigadores han estudiado qué geometrías son más adecuad
 
 ### Percepción de escala
 
+
+Entre la percepción visual y la interpretación de una gráfica están implícitas tareas visuales específicas que las personas debemos realizar para ver correctamente la gráfica. En la década de los ochenta, William S. Cleveland y Robert McGill realizaron algunos experimentos identificando y clasificando estas tareas para diferentes tipos de gráficos [23, 24]. Generalmente se le pregunta a la persona que compare _dos_ valores dentro de una gráfica, por ejemplo, dos barras en una gráfica de barras, o dos rebanadas de una gráfica de pie.
+
+![](figuras/ch-02-cleveland-task-types.png)
+
+<p class="espacio">
+</p>
+
+Para cada tipo de gráfico, se les pidió a los sujetos que identificaran el segmento más pequeño de los dos marcados en el gráfico, y luego que "hicieran un juicio visual rápido", estimando qué porcentaje el más pequeño era del más grande. Como se puede ver en la figura, los gráficos probaron los datos codificados de diferentes maneras. Los tipos 1-3 usan codificación de posición a lo largo de una escala común, mientras que los tipos 4 y 5 usan codificación de longitud. El gráfico circular codifica los valores como ángulos, y los gráficos restantes como áreas-circular, rectángulos separados (como en un cartograma) o sub-rectángulos (como en un mapa de árbol).
+
+
+<p class="espacio">
+</p>
+
 <div style="text-align: center;">**¡Hasta la Casa Blanca lo tuvo mal!**</div>
-<center><img src="figuras/areas/obamaCircles.jpg" width="200px" /></center>
+<center><img src="figuras/areas/obamaCircles.jpg" width="600px" /></center>
 <p class="espacio">
 </p>
 
@@ -490,21 +503,18 @@ Transparencia (`alpha`) | No aplica | Mapeo lineal a la transparencia
 
 Los *_geoms_* controlan el tipo de gráfica:
 
-```{r, fig.width = 5, fig.height = 4}
+```{r, fig.height=4, fig.width=5, message=FALSE, warning=FALSE}
 p + geom_smooth()
 ```
 
-Puedes ver de inmediato que algunos de estos geoms hacen mucho más que simplemente poner puntos en una cuadrícula. Aquí geom_smooth () ha calculado una línea suavizada para nosotros y sombreada en una cinta que muestra el error estándar para la línea. Si queremos ver los puntos de datos y la línea juntos, simplemente agregamos geom_point () de nuevo en:
-
 Podemos ver de inmediato que algunos de estos `geoms` hacen mucho más que simplemente poner puntos en una cuadrícula. Aquí `geom_smooth()` ha calculado una línea suavizada y la región sombreada representa el error estándar de la línea suavizada. Si queremos ver los puntos de datos y la línea juntos, simplemente agregamos `geom_point()` de nuevo como una capa adicional utilizando `+`:
 
-```{r, fig.width = 5, fig.height = 4}
+```{r, fig.height=4, fig.width=5, message=FALSE, warning=FALSE}
 p <- ggplot(data = gapminder,
             mapping = aes(x = gdpPercap,
                           y=lifeExp))
 p + geom_point() + geom_smooth()
 ```
-
 
 
 El mensaje de la consola de R nos dice que la función `geom_smooth()` está utilizando un método llamado gam, que en este caso significa que se ajusta a un modelo aditivo generalizado. Esto sugiere que tal vez haya otros métodos en `geom_smooth()`. Podemos intentar agregar `method = "lm"` (para "modelo lineal") como un argumento para `geom_smooth()`:
@@ -523,7 +533,7 @@ Se puede agregar al mapeo del color de la línea el continente y del relleno de 
 
 
 
-```{r, fig.width = 5, fig.height = 4}
+```{r, fig.width = 10, fig.height = 6}
 p <- ggplot(data = gapminder,
             mapping = aes(x = gdpPercap,
                           y = lifeExp,
@@ -538,7 +548,7 @@ p + geom_point() +
 <p class="espacio">
 </p>
 
-### Un histograma de las muertes en Iraq
+#### Un histograma de las muertes en Iraq
 
 Iraq Body Count (IBC) mantiene la base de datos pública más grande sobre muertes violentas de civiles desde la invasión en Iraq del 2003. Los datos de IBC provienen de informes de medios cruzados, de hospitales, morgue, ONG y cifras o registros oficiales.
 
@@ -570,7 +580,7 @@ ggplot(ibc_fatalidades, aes(x=Deaths_recorded)) +
 
 
 
-## Inglehart–Welzel: un mapa cultural del mundo
+#### Inglehart–Welzel: un mapa cultural del mundo
 
 Los teóricos de la modernización de Karl Marx a Daniel Bell han sostenido que el desarrollo económico trae cambios culturales penetrantes. Pero otros, desde Max Weber hasta Samuel Huntington, han afirmado que los valores culturales son una influencia duradera y autónoma sobre la sociedad. 
 
@@ -798,7 +808,6 @@ ggplot(data = factores_inglehart, mapping = aes(x = survival_selfexpression, y =
 ```
 
 
-
 ### Gráfica de línea
 
 La base de datos Global Terrorism Database (GTD) es una base de datos abierta que incluye información de los eventos terroristas en todo el mundo desde 1970 hasta el 2015. Esta base de dato se actualiza cada año con los datos del año anterior. A diferencia de muchas otras fuentes de datos de eventos terroristas, GTD incluye datos sistemáticos sobre incidentes terroristas tanto nacionales e internacionales que han ocurrido durante este período de tiempo y ahora incluye más de 150 mil casos.
@@ -853,26 +862,29 @@ wrld <- readOGR("shps", "countries")
 wrld_df <- fortify(wrld, region="name")
 ```
 
-```{r, message=F, comment=NA, results='hide'}
+```{r, message=F, warning=FALSE, comment=NA, results='hide'}
 autocracies <- read_rds('datos/autocracies.rds')
 autocracies_2012 <- autocracies %>% filter(year == 2012)
 autocracies_mapa_2012 <- left_join(wrld_df, autocracies_2012, by = c("id"="country"))
 ```
 
 
-```{r}
+```{r, fig.align="center", fig.height=6, fig.width=10, message=FALSE, warning=FALSE}
 ggplot(autocracies_mapa_2012, aes(x=long, y = lat)) +
-  geom_polygon(aes(group = group, fill = as.factor(regime_r)), color = "black") +
-  coord_fixed()
+  geom_polygon(aes(group = group, fill = as.factor(regime_r)), color = "black")
 ```
 
 
-### Caja y brazos
+### Diagrama de caja y brazos
+
+
+### Pequeños múltiplos
+
+
 
 
 
 ### Mapas
-
 
 ```{r, echo=F, message=FALSE, warning=FALSE, comment=NA, results='hide'}
 library(ggplot2)
@@ -919,8 +931,6 @@ utilizar _superficies de desarrollo_ y después aplanar la superficie. Todas las
 diferentes.
 
 <center><img src="./figuras/mapa_Tierra.png" style="width: 500px;"/></center>
-
-
 
 Las distorsiones resultan en pérdidas de información que pueden ser en área, 
 forma, distancia o dirección. Por ejemplo _Mercator_ preserva dirección y es 
@@ -1115,7 +1125,7 @@ mun_df. Para este ejemplo graficaremos únicamente una región. Podemos crear
 el subconjunto directamente del objeto _SpatialPolygonsDataFrame_ pero en 
 este ejemplo filtraremos la base de datos _data.frame_.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 mun_ind <- mun_df %>%
   mutate(CVE = id) %>%
   left_join(indice, by = "CVE") %>% 
@@ -1130,7 +1140,7 @@ ggplot() +
 En el siguiente mapa los colores son a nivel municipio pero dibujamos las 
 fronteras a nivel estado para evitar que los bordes opaquen los datos.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 mun_ind <- mun_df %>%
   mutate(CVE = id) %>%
   left_join(indice, by = "CVE") 
@@ -1241,7 +1251,7 @@ La idea de *pipeline* intenta hacer el desarrollo de código más fácil, en men
 
 En el análisis de datos es común hacer varias operaciones y se vuelve difícil leer y entender el código. La dificultad radica en que usualmente los parámetros se asignan después del nombre de la función usando `()`. 
 
-La forma en que esta idea logra hacer las cosas más faciles es con el operador **forwad pipe** `%>%`que envía un valor a una expresión o función. Este cambio en el orden funciona como el parámetro que precede a la función es enviado ("piped") a la función. Es decir, supongamos `x` es una valor y  sea `f` una función, entonces **`x %>% f` es igual a `f(x)`.**
+La forma en que esta idea logra hacer las cosas más faciles es con el operador **forward pipe** `%>%`que envía un valor a una expresión o función. Este cambio en el orden funciona como el parámetro que precede a la función es enviado ("piped") a la función. Es decir, supongamos `x` es una valor y  sea `f` una función, entonces **`x %>% f` es igual a `f(x)`.**
 
 
 Por ejemplo, sea f(x) la función de probabilidad de la distribución normal con media $\mu = 0$ y desviación estándar $\sigma = 1$:
@@ -1290,8 +1300,6 @@ df %>%
 
 <br>
 
-
-
 Regresando a la construcción de nuestro mapa de la población en el mundo, establecemos primero los puntos de corte y las etiquetas para el tamaño de los círculos:
 
 ```{r}
@@ -1318,11 +1326,7 @@ Se puede producir una gráfica para cada siglo y crear un gif con las gráficas 
 
 ![](figuras/world_population.gif)
 
-
-
-### Pequeños múltiplos
-
-
+### Otros ejemplos
 
 #### Narrativa gráfica de espacio y tiempo
 
@@ -1464,7 +1468,7 @@ p2 <- ggplot(data = temps, mapping = aes(x = long, y = temp)) +
 grid.arrange(p1, p2, widths = c(10), heights = c(6,1.5), ncol = 1)
 ```
 
-### El Siglo XVIII
+#### El Siglo XVIII
 Éste es un ejemplo más complejo que muestra cómo producir un mapa de los flujos de transporte del siglo XVIII. Los datos se obtuvieron del proyecto CLIWOC y representan una muestra de registros de barcos. Estamos usando una muestra muy pequeña. El ejemplo se ha elegido para demostrar una gama de capacidades dentro de ggplot2 y las formas en que pueden aplicarse para producir mapas de alta calidad con sólo unas pocas líneas de código.
 
 Para mayor información puedes visitar <http://pendientedemigracion.ucm.es/info/cliwoc/>. El análisis original se encuentra en Brunsdon (2015).
@@ -1547,7 +1551,7 @@ base + route + wrld + theme(panel.background = element_rect(fill='#BAC4B9',colou
 
 
 > Las notas de este taller introductorio están basadas en el material de Teresa Ortiz,
-> así como en el libro “R for Data Science” escrito por Hadley Wickham y Garret Grolemund.
+> así como en el libro “R for Data Science” escrito por Hadley Wickham.
 
 
 
@@ -1582,25 +1586,25 @@ base + route + wrld + theme(panel.background = element_rect(fill='#BAC4B9',colou
 
 [14] Fung, K. (2015). Junk Charts Trifecta Checkup: The Definitive Guide. Recuperado en línea: http://junkcharts.typepad.com/junk_charts/junk-charts-trifecta-checkup-the-definitive-guide.html 
 
-[15] Willam S. Cleveland, Visualizing Data, Hobart Press, 1994.
+[15] Willam S. Cleveland. (1994). Visualizing Data, Hobart Press.
 
-[16] Hyndman y Fan. Sample quantiles in statistical packages, The American
-Statistician, 1996.
+[16] Hyndman y Fan. (1996). Sample quantiles in statistical packages, The American
+Statistician.
 
-[17] B.D. Ripley, Robust Statistics, 2004.
+[17] B.D. Ripley. (2004). Robust Statistics.
 
-[18] David W. Scott, Multivariate Density Estimation, Wiley & Sons, 1992.
+[18] David W. Scott. (1992) Multivariate Density Estimation, Wiley & Sons.
 
-[19] John W. Tukey y Frederick Mosteller, Data Analysis and Regression,
-Addison-Wesley, 1977.
+[19] John W. Tukey y Frederick Mosteller (1977). Data Analysis and Regression,
+Addison-Wesley.
 
-[20] Izenman y Sommer, Philatelic mixtures and multimodal densities, Journal of the
-American Statistical Association, 1998.
+[20] Izenman y Sommer. (1998). Philatelic mixtures and multimodal densities, Journal of the
+American Statistical Association.
 
 [21] Wickham, H., & Grolemund, G. (2016). R for data science.
 
-[22] Brunsdon, C., & Singleton, A. (Eds.). (2015). Geocomputation: A Practical Primer. SAGE.
+[22] Brunsdon, C., & Singleton, A. (2015). Geocomputation: A Practical Primer. SAGE.
 
+[23] Cleveland, William S., and Robert McGill. (1984). “Graphical Perception: Theory, Experimentation, and Application to the Development of Graphical Methods.” Journal of the American Statistical Association 79: 531–34.
 
-
-
+[24] Cleveland, William S., and Robert McGill. (1987). “Graphical Perception: The Visual Decoding of Quantitative Information on Graphical Displays of Data.” Journal of the Royal Statistical Society Series A 150: 192–229.
