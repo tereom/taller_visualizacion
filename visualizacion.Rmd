@@ -1092,7 +1092,25 @@ Las distorsiones resultan en pérdidas de información que pueden ser en área,
 forma, distancia o dirección. Por ejemplo _Mercator_ preserva dirección y es 
 útil para navegación: 
 
+```{r, echo=FALSE}
+detachAllPackages <- function() {
+
+  basic.packages <- c("package:stats","package:graphics","package:grDevices","package:utils","package:datasets","package:methods","package:base")
+
+  package.list <- search()[ifelse(unlist(gregexpr("package:",search()))==1,TRUE,FALSE)]
+
+  package.list <- setdiff(package.list,basic.packages)
+
+  if (length(package.list)>0)  for (package in package.list) detach(package, character.only=TRUE)
+
+}
+
+detachAllPackages()
+```
+
+
 ```{r}
+library(ggplot2)
 states <- map_data("state")
 usmap <- ggplot(states, aes(x=long, y=lat, group=group)) +
   geom_polygon(fill="white", colour="black")
@@ -1115,7 +1133,8 @@ proyección (de secantes) en cada una.
 
 En R podemos ver la lista de proyecciones con la siguiente instrucción:
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
+library(rgdal)
 # 135 proyecciones distintas
 projInfo(type="proj")[1:20, ]
 ```
@@ -1168,8 +1187,7 @@ mun_shp@proj4string
 
 Veamos las librerías que usaremos
 
-```{r, message=FALSE, eval = FALSE}
-library(ggplot2)
+```{r, eval=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(sp)
 library(rgeos)
@@ -1195,9 +1213,12 @@ class(edo_shp)
 
 Lo podemos graficar directamente con plot.
 
-```{r}
+```{r, eval=FALSE}
 plot(edo_shp)
 ```
+
+<center><img src="./figuras/plot_edo_shp.png" style="width: 500p4;"/></center>
+
 
 pero para poder graficarlo con ggplot debemos convertirlo en data frame.
 
@@ -1484,8 +1505,8 @@ Se puede producir una gráfica para cada siglo y crear un gif con las gráficas 
 ### Otros ejemplos
 
 
-#### Ejemplo con leaflet
-```{r, message=FALSE, warning=FALSE}
+<!-- #### Ejemplo con leaflet -->
+```{r, message=FALSE, warning=FALSE, echo=FALSE, eval=FALSE}
 #devtools::install_github('rstudio/leaflet')
 library(leaflet)
 library(maps)
