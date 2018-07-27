@@ -537,6 +537,7 @@ library(gapminder)
 Esto hace que una tabla de datos esté disponible para su uso. Para ver un pedazo de la tabla utilizamos la función `glimpse()`:
 
 ```{r}
+library(tidyverse)
 glimpse(gapminder)
 ```
 
@@ -545,6 +546,7 @@ Supongamos que queremos graficar la esperanza de vida vs el PIB per cápita para
 
 ```{r}
 p <- ggplot(data = gapminder)
+p
 ```
 
 En este punto, ggplot sabe cuáles son nuestros datos, pero no cuál es el mapeo, es decir, qué variables de los datos deben correlacionarse con qué elementos visuales de la trama. Tampoco sabe qué tipo de trama queremos. En ggplot, las asignaciones se especifican utilizando la función aes (). Me gusta esta:
